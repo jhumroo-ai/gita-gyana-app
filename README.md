@@ -10,7 +10,7 @@ A beautiful, interactive web application for exploring the timeless wisdom of th
 📱 Mobile Responsive: Works perfectly on all devices
 🎨 Beautiful UI: Clean, modern design with sacred color themes
 🚀 Live Demo
-Visit: https://yourusername.github.io/gita-gyana-app
+Visit: https://jhumroo-ai.github.io/gita-gyana-app
 
 📖 Content
 This app currently includes:
