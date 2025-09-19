@@ -1,0 +1,172 @@
+/* Additional custom styles for Gita Gyana */
+
+/* Sanskrit text styling */
+.sanskrit-text {
+    font-family: 'Noto Sans Devanagari', 'Mangal', 'Kokila', serif;
+    line-height: 1.8;
+    font-size: 1.1em;
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(45deg, #f97316, #f59e0b);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(45deg, #ea580c, #d97706);
+}
+
+/* Enhanced hover effects */
+.verse-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.verse-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Search input focus animation */
+input[type="text"]:focus {
+    transform: scale(1.01);
+    transition: all 0.2s ease;
+}
+
+/* Button pulse animation */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: .7;
+    }
+}
+
+.pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Category button active state */
+.category-active {
+    background: linear-gradient(135deg, #f97316, #f59e0b);
+    color: white;
+    border-color: #f97316;
+    box-shadow: 0 4px 14px 0 rgba(249, 115, 22, 0.3);
+}
+
+/* Loading animation enhancement */
+.loading-spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Favorite star animation */
+.favorite-star {
+    transition: all 0.2s ease;
+}
+
+.favorite-star:hover {
+    transform: scale(1.2);
+}
+
+.favorite-star.active {
+    color: #fbbf24;
+    filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.5));
+}
+
+/* Teaching box gradient enhancement */
+.teaching-box {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #fbbf24 100%);
+    border-left: 4px solid #f59e0b;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .sanskrit-text {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .verse-card {
+        margin-bottom: 1rem;
+    }
+    
+    .category-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #1f2937;
+        --text-primary: #f9fafb;
+        --border-color: #374151;
+    }
+}
+
+/* Print styles */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    .verse-card {
+        break-inside: avoid;
+        margin-bottom: 2rem;
+        border: 1px solid #ccc;
+        padding: 1rem;
+    }
+    
+    body {
+        background: white !important;
+    }
+}
+
+/* Accessibility improvements */
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus indicators for keyboard navigation */
+button:focus,
+input:focus,
+select:focus {
+    outline: 2px solid #f97316;
+    outline-offset: 2px;
+}
+
+/* Smooth transitions for all interactive elements */
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
