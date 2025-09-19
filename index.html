@@ -5,9 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gita Gyana - Bhagavad Gita Wisdom Explorer</title>
     <meta name="description" content="Explore timeless wisdom from the Bhagavad Gita with search, categories, and detailed teachings">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-    <link rel="stylesheet" href="assets/style.css">
-    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles embedded for reliability */
+        body {
+            background: linear-gradient(135deg, #fef7ed 0%, #fef3c7 50%, #fde68a 100%);
+            min-height: 100vh;
+        }
+        .bg-gradient-to-br {
+            background: linear-gradient(135deg, #fef7ed 0%, #fef3c7 50%, #fde68a 100%);
+        }
+        .bg-gradient-to-r {
+            background: linear-gradient(90deg, #ea580c 0%, #f59e0b 100%);
+        }
+        .sanskrit-text {
+            font-family: 'Noto Sans Devanagari', 'Mangal', 'Kokila', serif;
+            line-height: 1.8;
+        }
+        .verse-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .verse-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .category-btn:hover {
+            background-color: #fff7ed;
+            border-color: #f97316;
+        }
+        .loading-spinner {
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .sanskrit-text {
+                font-size: 1rem;
+                line-height: 1.6;
+            }
+        }
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50">
     <!-- Sacred Invocation -->
