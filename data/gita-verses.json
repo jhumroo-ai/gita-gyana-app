@@ -694,7 +694,7 @@
     "translation": "Thou grievest where no grief should be! thou speak'st words lacking wisdom! for the wise in heart mourn not for those that live, nor those that die.",
     "teaching": "True wisdom lies in understanding the eternal nature of the soul. The wise do not grieve for the temporary changes of the body, knowing the soul is imperishable.",
     "category": "wisdom",
-    "relevance": 95
+    "relevance": 94
     },
     {
     "id": 212,
@@ -1138,7 +1138,7 @@
     "translation": "Yet, the right act is less, far less, than the right-thinking mind. Seek refuge in thy soul; have there thy heaven! Scorn them that follow virtue for her gifts!",
     "teaching": "Perform your duty equipoised, O Arjuna, abandoning all attachment to success or failure. Such equanimity is called yoga.",
     "category": "equanimity",
-    "relevance": 95
+    "relevance": 94
   },
   {
     "id": 249,
@@ -1681,4 +1681,5 @@
       "relevance": 98
     }
   ]
+
 }
