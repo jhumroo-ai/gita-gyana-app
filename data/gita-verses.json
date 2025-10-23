@@ -2784,18 +2784,6 @@
     "category": "liberation",
     "relevance": 88
   },
-  {
-    "id": 529,
-    "source": "Bhagavad Gita",
-    "chapter": "Chapter 5",
-    "verse": "29",
-    "sanskrit": "भोक्तारं यज्ञतपसां सर्वलोकमहेश्वरम्। सुहृदं सर्वभूतानां ज्ञात्वा मां शान्तिमृच्छति॥",
-    "transliteration": "bhoktāraṁ yajña-tapasāṁ sarva-loka-maheśvaram | suhṛdaṁ sarva-bhūtānāṁ jñātvā māṁ śāntim ṛcchati ||",
-    "translation": "Yea! for he knows Me Who am He that heeds the sacrifice and worship, God revealed; and He who heeds not, being Lord of Worlds, Lover of all that lives, God unrevealed, wherein who will shall find surety and shield!",
-    "teaching": "Knowing Me as the enjoyer of all sacrifices and austerities, the Supreme Lord of all worlds, and the friend of all beings, one attains peace. Understanding God's nature as the beneficiary, controller, and well-wisher brings ultimate peace.",
-    "category": "peace",
-    "relevance": 95
-  },
     {
       "id": 529,
       "source": "Bhagavad Gita",
@@ -3001,4 +2989,5 @@
       "relevance": 98
     }
   ]
+
 }
