@@ -161,272 +161,288 @@
         </div>
     </div>
 
-    <script>
-        let allVerses = [];
-        let filteredResults = [];
-        let selectedCategory = 'essential';
-        let favoriteVerses = new Set();
+<script>
+let allVerses = [];
+let filteredResults = [];
+let selectedCategory = 'essential';
+let favoriteVerses = new Set();
 
-        const categories = [
-            { id: 'essential', name: 'Essential Verses', icon: '⭐' },
-            { id: 'karma-yoga', name: 'Karma Yoga', icon: '🔨' },
-            { id: 'dharma', name: 'Dharma', icon: '💡' },
-            { id: 'devotion', name: 'Bhakti', icon: '🌸' },
-            { id: 'self-development', name: 'Self-Realization', icon: '🧭' },
-            { id: 'spirituality', name: 'Spirituality', icon: '⚡' },
-            { id: 'psychology', name: 'Mind & Psychology', icon: '🧠' },
-            { id: 'surrender', name: 'Surrender', icon: '❤️' }
-        ];
+// FIXED: Updated category IDs to match JSON values
+const categories = [
+    { id: 'essential', name: 'Essential Verses', icon: '⭐' },
+    { id: 'karma yoga', name: 'Karma Yoga', icon: '🔨' },
+    { id: 'dharma', name: 'Dharma', icon: '💡' },
+    { id: 'bhakti', name: 'Bhakti', icon: '🌸' },
+    { id: 'self-realization', name: 'Self-Realization', icon: '🧭' },
+    { id: 'spirituality', name: 'Spirituality', icon: '⚡' },
+    { id: 'mind & psychology', name: 'Mind & Psychology', icon: '🧠' },
+    { id: 'surrender', name: 'Surrender', icon: '❤️' }
+];
 
-        // Load verses from JSON
-        async function loadVerses() {
-            try {
-                const response = await fetch('data/gita-verses.json');
-                if (!response.ok) throw new Error('Failed to load verses');
-                const data = await response.json();
-                allVerses = data.verses;
-                
-                // Show essential verses by default (relevance >= 95)
-                showEssentialVerses();
-                initializeCategoryFilters();
-            } catch (error) {
-                console.error('Error loading verses:', error);
-                document.getElementById('results').innerHTML = '<div class="text-center py-12 text-red-600">Error loading verses. Please try refreshing the page.</div>';
-            }
+// Load verses from JSON
+async function loadVerses() {
+    try {
+        const response = await fetch('data/gita-verses.json');
+        if (!response.ok) throw new Error('Failed to load verses');
+        const data = await response.json();
+        allVerses = data.verses;
+        
+        // Show essential verses by default (relevance >= 95)
+        showEssentialVerses();
+        initializeCategoryFilters();
+    } catch (error) {
+        console.error('Error loading verses:', error);
+        document.getElementById('results').innerHTML = '<div class="text-center py-12 text-red-600">Error loading verses. Please try refreshing the page.</div>';
+    }
+}
+
+// Show essential verses by default
+function showEssentialVerses() {
+    const essentialVerses = allVerses.filter(verse => verse.relevance >= 95);
+    displayResults(essentialVerses);
+}
+
+function initializeCategoryFilters() {
+    const container = document.getElementById('categoryFilters');
+    container.innerHTML = categories.map(category => `
+        <button 
+            onclick="handleCategoryChange('${category.id}')"
+            class="category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 ${
+                selectedCategory === category.id 
+                    ? 'border-orange-500 bg-orange-50 text-orange-700' 
+                    : 'border-gray-200 hover:border-orange-300 hover:bg-orange-25'
+            }"
+            data-category="${category.id}"
+        >
+            <span class="text-sm mr-2">${category.icon}</span>
+            <span class="text-xs font-medium">${category.name}</span>
+        </button>
+    `).join('');
+}
+
+function searchVerses(query, categoryFilter = selectedCategory) {
+    let filtered = [...allVerses];
+    
+    if (query.trim()) {
+        const searchQuery = query.toLowerCase();
+        filtered = filtered.filter(verse => {
+            // Chapter-verse search patterns
+            const chapterNum = verse.chapter.match(/\d+/)?.[0];
+            const verseNum = verse.verse.split('-')[0];
+            const fullVerse = verse.verse;
+            
+            const patterns = [
+                `${chapterNum}-${verseNum}`,
+                `${chapterNum}.${verseNum}`,
+                `${chapterNum}:${verseNum}`,
+                `${chapterNum} ${verseNum}`,
+                `${chapterNum}-${fullVerse}`,
+                `${chapterNum}.${fullVerse}`,
+                `chapter ${chapterNum} verse ${verseNum}`,
+                `ch${chapterNum}v${verseNum}`
+            ];
+            
+            const matchesChapterVerse = patterns.some(pattern => 
+                pattern.toLowerCase() === searchQuery
+            );
+            
+            return matchesChapterVerse ||
+                verse.translation.toLowerCase().includes(searchQuery) ||
+                verse.teaching.toLowerCase().includes(searchQuery) ||
+                verse.category.toLowerCase().includes(searchQuery) ||
+                verse.source.toLowerCase().includes(searchQuery) ||
+                verse.sanskrit.toLowerCase().includes(searchQuery) ||
+                verse.transliteration.toLowerCase().includes(searchQuery);
+        });
+    } else {
+        if (categoryFilter && categoryFilter !== 'essential') {
+            filtered = filtered.filter(verse => verse.category === categoryFilter);
+        } else if (categoryFilter === 'essential') {
+            filtered = filtered.filter(verse => verse.relevance >= 95);
         }
-
-        // Show essential verses by default
-        function showEssentialVerses() {
-            const essentialVerses = allVerses.filter(verse => verse.relevance >= 95);
-            displayResults(essentialVerses);
+    }
+    
+    // Sort by chapter and verse
+    filtered.sort((a, b) => {
+        const aChapter = parseInt(a.chapter.match(/\d+/)?.[0] || '0');
+        const bChapter = parseInt(b.chapter.match(/\d+/)?.[0] || '0');
+        
+        if (aChapter !== bChapter) {
+            return aChapter - bChapter;
         }
+        
+        const aVerse = parseInt(a.verse.split('-')[0] || '0');
+        const bVerse = parseInt(b.verse.split('-')[0] || '0');
+        return aVerse - bVerse;
+    });
+    
+    return filtered;
+}
 
-        function initializeCategoryFilters() {
-            const container = document.getElementById('categoryFilters');
-            container.innerHTML = categories.map(category => `
-                <button 
-                    onclick="handleCategoryChange('${category.id}')"
-                    class="category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 ${
-                        selectedCategory === category.id 
-                            ? 'border-orange-500 bg-orange-50 text-orange-700' 
-                            : 'border-gray-200 hover:border-orange-300 hover:bg-orange-25'
-                    }"
-                    data-category="${category.id}"
-                >
-                    <span class="text-sm mr-2">${category.icon}</span>
-                    <span class="text-xs font-medium">${category.name}</span>
-                </button>
-            `).join('');
-        }
-
-        function searchVerses(query, categoryFilter = selectedCategory) {
-            let filtered = [...allVerses];
-            
-            if (query.trim()) {
-                const searchQuery = query.toLowerCase();
-                filtered = filtered.filter(verse => {
-                    // Chapter-verse search patterns
-                    const chapterNum = verse.chapter.match(/\d+/)?.[0];
-                    const verseNum = verse.verse.split('-')[0];
-                    const fullVerse = verse.verse;
-                    
-                    const patterns = [
-                        `${chapterNum}-${verseNum}`,
-                        `${chapterNum}.${verseNum}`,
-                        `${chapterNum}:${verseNum}`,
-                        `${chapterNum} ${verseNum}`,
-                        `${chapterNum}-${fullVerse}`,
-                        `${chapterNum}.${fullVerse}`,
-                        `chapter ${chapterNum} verse ${verseNum}`,
-                        `ch${chapterNum}v${verseNum}`
-                    ];
-                    
-                    const matchesChapterVerse = patterns.some(pattern => 
-                        pattern.toLowerCase() === searchQuery
-                    );
-                    
-                    return matchesChapterVerse ||
-                        verse.translation.toLowerCase().includes(searchQuery) ||
-                        verse.teaching.toLowerCase().includes(searchQuery) ||
-                        verse.category.toLowerCase().includes(searchQuery) ||
-                        verse.source.toLowerCase().includes(searchQuery) ||
-                        verse.sanskrit.toLowerCase().includes(searchQuery) ||
-                        verse.transliteration.toLowerCase().includes(searchQuery);
-                });
-            } else {
-                if (categoryFilter && categoryFilter !== 'essential') {
-                    filtered = filtered.filter(verse => verse.category === categoryFilter);
-                } else if (categoryFilter === 'essential') {
-                    filtered = filtered.filter(verse => verse.relevance >= 95);
-                }
-            }
-            
-            // Sort by chapter and verse
-            filtered.sort((a, b) => {
-                const aChapter = parseInt(a.chapter.match(/\d+/)?.[0] || '0');
-                const bChapter = parseInt(b.chapter.match(/\d+/)?.[0] || '0');
-                
-                if (aChapter !== bChapter) {
-                    return aChapter - bChapter;
-                }
-                
-                const aVerse = parseInt(a.verse.split('-')[0] || '0');
-                const bVerse = parseInt(b.verse.split('-')[0] || '0');
-                return aVerse - bVerse;
-            });
-            
-            return filtered;
-        }
-
-        function displayResults(verses) {
-            const container = document.getElementById('results');
-            const noResults = document.getElementById('noResults');
-            
-            if (verses.length === 0) {
-                container.classList.add('hidden');
-                noResults.classList.remove('hidden');
-                return;
-            }
-            
-            container.classList.remove('hidden');
-            noResults.classList.add('hidden');
-            
-            container.innerHTML = verses.map(verse => `
-                <div class="bg-white rounded-2xl shadow-lg border border-orange-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
-                    <div class="p-8">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center space-x-3">
-                                <div class="px-3 py-1 rounded-full text-sm font-semibold ${
-                                    verse.source === 'Bhagavad Gita' 
-                                        ? 'bg-orange-100 text-orange-800' 
-                                        : 'bg-amber-100 text-amber-800'
-                                }">
-                                    ${verse.source}
-                                </div>
-                                <span class="text-gray-500 text-sm">${verse.chapter} • Verse ${verse.verse}</span>
-                            </div>
-                            <button
-                                onclick="toggleFavorite(${verse.id})"
-                                class="p-2 rounded-full transition-colors ${
-                                    favoriteVerses.has(verse.id)
-                                        ? 'text-yellow-500 bg-yellow-50'
-                                        : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
-                                }"
-                            >
-                                ⭐
-                            </button>
+function displayResults(verses) {
+    const container = document.getElementById('results');
+    const noResults = document.getElementById('noResults');
+    
+    if (verses.length === 0) {
+        container.classList.add('hidden');
+        noResults.classList.remove('hidden');
+        return;
+    }
+    
+    container.classList.remove('hidden');
+    noResults.classList.add('hidden');
+    
+    container.innerHTML = verses.map(verse => `
+        <div class="bg-white rounded-2xl shadow-lg border border-orange-100 overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="px-3 py-1 rounded-full text-sm font-semibold ${
+                            verse.source === 'Bhagavad Gita' 
+                                ? 'bg-orange-100 text-orange-800' 
+                                : 'bg-amber-100 text-amber-800'
+                        }">
+                            ${verse.source}
                         </div>
+                        <span class="text-gray-500 text-sm">${verse.chapter} • Verse ${verse.verse}</span>
+                    </div>
+                    <button
+                        onclick="toggleFavorite(${verse.id})"
+                        class="p-2 rounded-full transition-colors ${
+                            favoriteVerses.has(verse.id)
+                                ? 'text-yellow-500 bg-yellow-50'
+                                : 'text-gray-400 hover:text-yellow-500 hover:bg-yellow-50'
+                        }"
+                    >
+                        ⭐
+                    </button>
+                </div>
 
-                        <div class="mb-4">
-                            <p class="text-gray-600 mb-2 text-lg leading-relaxed sanskrit-text">${verse.sanskrit}</p>
-                            <p class="text-gray-500 text-sm leading-relaxed mb-2">${verse.transliteration}</p>
-                        </div>
+                <div class="mb-4">
+                    <p class="text-gray-600 mb-2 text-lg leading-relaxed sanskrit-text">${verse.sanskrit}</p>
+                    <p class="text-gray-500 text-sm leading-relaxed mb-2">${verse.transliteration}</p>
+                </div>
 
-                        <div class="mb-4">
-                            <h3 class="text-xl font-semibold text-gray-800 mb-2">Translation:</h3>
-                            <p class="text-gray-700 text-lg leading-relaxed">${verse.translation}</p>
-                        </div>
+                <div class="mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Translation:</h3>
+                    <p class="text-gray-700 text-lg leading-relaxed">${verse.translation}</p>
+                </div>
 
-                        <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl">
-                            <h4 class="text-lg font-semibold text-orange-800 mb-2 flex items-center">
-                                💡 Teaching:
-                            </h4>
-                            <p class="text-orange-700 leading-relaxed">${verse.teaching}</p>
-                        </div>
+                <div class="bg-gradient-to-r from-orange-50 to-amber-50 p-6 rounded-xl">
+                    <h4 class="text-lg font-semibold text-orange-800 mb-2 flex items-center">
+                        💡 Teaching:
+                    </h4>
+                    <p class="text-orange-700 leading-relaxed">${verse.teaching}</p>
+                </div>
 
-                        <div class="mt-4 flex items-center justify-between">
-                            <span class="px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(verse.category)}">
-                                ${verse.category.replace('-', ' ')}
-                            </span>
-                            <div class="text-sm text-gray-500">
-                                Relevance: ${verse.relevance}%
-                            </div>
-                        </div>
+                <div class="mt-4 flex items-center justify-between">
+                    <span class="px-3 py-1 rounded-full text-sm font-medium ${getCategoryColor(verse.category)}">
+                        ${formatCategoryName(verse.category)}
+                    </span>
+                    <div class="text-sm text-gray-500">
+                        Relevance: ${verse.relevance}%
                     </div>
                 </div>
-            `).join('');
+            </div>
+        </div>
+    `).join('');
+}
+
+// FIXED: Updated category colors to match new category names
+function getCategoryColor(category) {
+    const colors = {
+        'karma yoga': 'bg-blue-100 text-blue-800',
+        'dharma': 'bg-green-100 text-green-800',
+        'bhakti': 'bg-purple-100 text-purple-800',
+        'self-realization': 'bg-indigo-100 text-indigo-800',
+        'spirituality': 'bg-pink-100 text-pink-800',
+        'mind & psychology': 'bg-yellow-100 text-yellow-800',
+        'surrender': 'bg-red-100 text-red-800'
+    };
+    return colors[category] || 'bg-gray-100 text-gray-800';
+}
+
+// NEW: Helper function to format category names for display
+function formatCategoryName(category) {
+    // Capitalize first letter of each word
+    return category.split(' ').map(word => 
+        word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+}
+
+function handleSearch() {
+    const query = document.getElementById('searchInput').value;
+    const results = searchVerses(query, query.trim() ? '' : selectedCategory);
+    displayResults(results);
+    
+    // Show/hide clear button
+    const clearBtn = document.getElementById('clearSearch');
+    if (query.trim()) {
+        clearBtn.classList.remove('hidden');
+        selectedCategory = '';
+        updateCategoryButtons();
+    } else {
+        clearBtn.classList.add('hidden');
+    }
+}
+
+function handleCategoryChange(categoryId) {
+    selectedCategory = categoryId;
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearch').classList.add('hidden');
+    
+    const results = searchVerses('', categoryId);
+    displayResults(results);
+    updateCategoryButtons();
+}
+
+function updateCategoryButtons() {
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        const category = btn.dataset.category;
+        if (category === selectedCategory) {
+            btn.className = 'category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 border-orange-500 bg-orange-50 text-orange-700';
+        } else {
+            btn.className = 'category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 border-gray-200 hover:border-orange-300 hover:bg-orange-25';
         }
+    });
+}
 
-        function getCategoryColor(category) {
-            const colors = {
-                'karma-yoga': 'bg-blue-100 text-blue-800',
-                'dharma': 'bg-green-100 text-green-800',
-                'devotion': 'bg-purple-100 text-purple-800',
-                'self-development': 'bg-indigo-100 text-indigo-800',
-                'spirituality': 'bg-pink-100 text-pink-800',
-                'psychology': 'bg-yellow-100 text-yellow-800',
-                'surrender': 'bg-red-100 text-red-800'
-            };
-            return colors[category] || 'bg-gray-100 text-gray-800';
+function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('clearSearch').classList.add('hidden');
+    handleCategoryChange('essential');
+}
+
+function toggleFavorite(id) {
+    if (favoriteVerses.has(id)) {
+        favoriteVerses.delete(id);
+    } else {
+        favoriteVerses.add(id);
+    }
+    // Re-render to update star states
+    const currentResults = searchVerses(
+        document.getElementById('searchInput').value,
+        selectedCategory
+    );
+    displayResults(currentResults);
+}
+
+// Event listeners
+document.getElementById('searchButton').addEventListener('click', handleSearch);
+document.getElementById('searchInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        if (document.getElementById('searchInput').value.trim()) {
+            selectedCategory = '';
         }
+        handleSearch();
+    }
+});
+document.getElementById('clearSearch').addEventListener('click', clearSearch);
+document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
+document.getElementById('showEssentialBtn').addEventListener('click', () => handleCategoryChange('essential'));
 
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value;
-            const results = searchVerses(query, query.trim() ? '' : selectedCategory);
-            displayResults(results);
-            
-            // Show/hide clear button
-            const clearBtn = document.getElementById('clearSearch');
-            if (query.trim()) {
-                clearBtn.classList.remove('hidden');
-                selectedCategory = '';
-                updateCategoryButtons();
-            } else {
-                clearBtn.classList.add('hidden');
-            }
-        }
-
-        function handleCategoryChange(categoryId) {
-            selectedCategory = categoryId;
-            document.getElementById('searchInput').value = '';
-            document.getElementById('clearSearch').classList.add('hidden');
-            
-            const results = searchVerses('', categoryId);
-            displayResults(results);
-            updateCategoryButtons();
-        }
-
-        function updateCategoryButtons() {
-            document.querySelectorAll('.category-btn').forEach(btn => {
-                const category = btn.dataset.category;
-                if (category === selectedCategory) {
-                    btn.className = 'category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 border-orange-500 bg-orange-50 text-orange-700';
-                } else {
-                    btn.className = 'category-btn flex items-center justify-center p-3 rounded-lg border-2 transition-all duration-200 border-gray-200 hover:border-orange-300 hover:bg-orange-25';
-                }
-            });
-        }
-
-        function toggleFavorite(id) {
-            if (favoriteVerses.has(id)) {
-                favoriteVerses.delete(id);
-            } else {
-                favoriteVerses.add(id);
-            }
-            // Re-render to update star states
-            const currentResults = searchVerses(
-                document.getElementById('searchInput').value,
-                selectedCategory
-            );
-            displayResults(currentResults);
-        }
-
-        // Event listeners
-        document.getElementById('searchButton').addEventListener('click', handleSearch);
-        document.getElementById('searchInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                if (document.getElementById('searchInput').value.trim()) {
-                    selectedCategory = '';
-                }
-                handleSearch();
-            }
-        });
-        document.getElementById('clearSearch').addEventListener('click', clearSearch);
-        document.getElementById('clearSearchBtn').addEventListener('click', clearSearch);
-        document.getElementById('showEssentialBtn').addEventListener('click', () => handleCategoryChange('essential'));
-
-        // Initialize app
-        loadVerses();
-    </script>
+// Initialize app
+loadVerses();
+</script>
 </body>
 </html>
