@@ -225,6 +225,25 @@ function searchVerses(query, categoryFilter = selectedCategory) {
     
     if (query.trim()) {
         const searchQuery = query.toLowerCase();
+        
+        // NEW: Check if searching for a whole chapter
+        const chapterMatch = searchQuery.match(/^(?:chapter\s*)?(\d+)$/);
+        if (chapterMatch) {
+            const chapterNum = chapterMatch[1];
+            filtered = filtered.filter(verse => {
+                const verseChapterNum = verse.chapter.match(/\d+/)?.[0];
+                return verseChapterNum === chapterNum;
+            });
+            // Sort by verse number and return early
+            filtered.sort((a, b) => {
+                const aVerse = parseInt(a.verse.split('-')[0] || '0');
+                const bVerse = parseInt(b.verse.split('-')[0] || '0');
+                return aVerse - bVerse;
+            });
+            return filtered;
+        }
+        
+        // Original search logic continues...
         filtered = filtered.filter(verse => {
             // Chapter-verse search patterns
             const chapterNum = verse.chapter.match(/\d+/)?.[0];
